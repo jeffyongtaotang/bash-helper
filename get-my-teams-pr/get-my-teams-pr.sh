@@ -144,7 +144,7 @@ parse_and_print_output() {
   printf 'Found %s PRs in \"%s\" author by(or condition): \"%s\"\n\n' "$COUNT" "$OWNER/$REPO" "$AUTHORS"
 
   while [[ $X -le $COUNT ]]; do
-    ITEM=$(echo "$1" | jq ".items[$X]") && X+=1
+    ITEM=$(echo "$1" | jq ".items[$X]") && X=$((X+1))
 
     TITLE=$(echo "$ITEM" | jq ".title")
     AUTHOR=$(echo "$ITEM" | jq ".user.login")
