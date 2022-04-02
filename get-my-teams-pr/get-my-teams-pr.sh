@@ -89,6 +89,10 @@ parse_args() {
         AUTHORS=$2
         shift
         ;;
+    --check-branch)
+        SHOULD_CHECK_BRANCH=true
+        shift
+        ;;
     -h|--help)
         help
         exit 0
@@ -150,12 +154,18 @@ parse_and_print_output() {
     AUTHOR=$(echo "$ITEM" | jq ".user.login")
     URL=$(echo "$ITEM" | jq ".html_url")
     PULL_NUMBER=$(echo "$ITEM" | jq ".number")
-    
-    PR=$(retrieve_pr "$PULL_NUMBER")
-    BRANCH=$(echo "$PR" | jq '.head.ref')
-    DRAFT=$(echo "$PR" | jq '.draft')
 
-    echo "{\"title\": $TITLE, \"draft\": $DRAFT, \"author\": $AUTHOR, \"branch\": $BRANCH, \"url\": $URL}" | jq && echo ""
+    if [[ ! -z $SHOULD_CHECK_BRANCH ]]; then
+      PR=$(retrieve_pr "$PULL_NUMBER")
+      BRANCH=$(echo "$PR" | jq '.head.ref')
+      DRAFT=$(echo "$PR" | jq '.draft')
+
+      echo "{\"title\": $TITLE, \"draft\": $DRAFT, \"author\": $AUTHOR, \"branch\": $BRANCH, \"url\": $URL}" | jq && echo ""
+    else
+      echo "{\"title\": $TITLE, \"author\": $AUTHOR, \"url\": $URL}" | jq && echo ""
+    fi
+
+    
   done
 }
 
