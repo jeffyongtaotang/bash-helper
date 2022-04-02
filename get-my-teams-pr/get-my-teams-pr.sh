@@ -154,15 +154,16 @@ parse_and_print_output() {
     AUTHOR=$(echo "$ITEM" | jq ".user.login")
     URL=$(echo "$ITEM" | jq ".html_url")
     PULL_NUMBER=$(echo "$ITEM" | jq ".number")
+    DRAFT=$(echo "$ITEM" | jq '.draft')
 
     if [[ ! -z $SHOULD_CHECK_BRANCH ]]; then
       PR=$(retrieve_pr "$PULL_NUMBER")
       BRANCH=$(echo "$PR" | jq '.head.ref')
-      DRAFT=$(echo "$PR" | jq '.draft')
+      
 
       echo "{\"title\": $TITLE, \"draft\": $DRAFT, \"author\": $AUTHOR, \"branch\": $BRANCH, \"url\": $URL}" | jq && echo ""
     else
-      echo "{\"title\": $TITLE, \"author\": $AUTHOR, \"url\": $URL}" | jq && echo ""
+      echo "{\"title\": $TITLE, \"draft\": $DRAFT, \"author\": $AUTHOR, \"url\": $URL}" | jq && echo ""
     fi
 
     
@@ -177,6 +178,8 @@ main() {
     check_input
 
     PR_DATA=$(retrieve_prs)
+
+    [[ $VERBOSE_MODE -eq 1 ]] && echo "$PR_DATA"
 
     parse_and_print_output "$PR_DATA"
 }
