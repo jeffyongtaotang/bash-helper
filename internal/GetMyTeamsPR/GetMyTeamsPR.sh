@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 error() {
-    echo "Error: " "$@" && exit 1
+  echo "Error: " "$@" && exit 1
 }
 
 run_checks() {

@@ -1,0 +1,5 @@
+{
+	"GetMyTeamsPR": {
+		"reletivePath": "internal/GetMyTeamsPR/GetMyTeamsPR.sh"
+	}
+}
