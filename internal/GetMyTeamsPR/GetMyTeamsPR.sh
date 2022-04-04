@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 error() {
-  echo "Error: " "$@" && exit 1
+  . "$ERROR_CMD" "$@"
 }
 
 run_checks() {
@@ -66,40 +66,25 @@ EOF
 }
 
 parse_args() {
-  while [[ $# -gt 0 ]]; do
-    key="$1"
-    case $key in
-    -u)
-        GITHUB_USERNAME=$2
-        shift
-        ;;
-    -t|--token)
-        GITHUB_TOKEN=$2
-        shift
-        ;;
-    -O|--owner)
-        OWNER=$2
-        shift
-        ;;
-    -R|--repo)
-        REPO=$2
-        shift
-        ;;
-    -A|--authors)
-        AUTHORS=$2
-        shift
-        ;;
-    --check-branch)
-        SHOULD_CHECK_BRANCH=true
-        shift
-        ;;
-    -h|--help)
-        help
-        exit 0
-        ;;
-    esac
-    shift
-  done
+# MENU JSON
+MENU=$(cat <<EOF
+{
+  "-u": "GITHUB_USERNAME",
+  "-t|--token": "GITHUB_TOKEN",
+  "-O|--owner": "OWNER",
+  "-R|--repo": "REPO",
+  "-A|--authors": "AUTHORS",
+  "--check-branch": "SHOULD_CHECK_BRANCH"
+}
+EOF
+)
+
+  while IFS='' read -r OBJ; do
+    KEY=$(echo "$OBJ"| jq -r '.key')
+    VAL=$(echo "$OBJ"| jq -r '.value')
+
+    export "$KEY"="$VAL"
+  done < <(. "$PARSE_ARGS_CMD" "$MENU" "$@" | jq -c ".|to_entries|.[]")
 }
 
 parse_query(){
@@ -186,4 +171,6 @@ main() {
 
 # main
 VERBOSE_MODE=${VERBOSE_MODE:-0}
+PARSE_ARGS_CMD=${BH_PROJECT_ROOT}/utils/parseArgs.sh
+ERROR_CMD=${BH_PROJECT_ROOT}/utils/error.sh
 main "$@"
